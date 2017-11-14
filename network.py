@@ -144,15 +144,17 @@ class Router:
     # @param rt_tbl_D: routing table dictionary (starting reachability), eg. {1: {1: 1}} # packet to host 1 through interface 1 for cost 1
     # @param max_queue_size: max queue length (passed to Interface)
     def __init__(self, name, num_intf, rt_tbl_D, max_queue_size):
+        self.RoutingTable=[['~' for x in range(2)] for y in range(2)]
         self.stop = False #for thread termination
         self.name = name
         #create a list of interfaces
         self.intf_L = []
         for i in range(num_intf):
             self.intf_L.append(Interface(max_queue_size))
+        self.RoutingTable=[['~' for x in range(len(self.intf_L))] for y in range(len(self.intf_L))]
         #set up the routing table for connected hosts
-        self.rt_tbl_D = rt_tbl_D 
-
+        self.rt_tbl_D = rt_tbl_D
+        
     ## called when printing the object
     def __str__(self):
         return 'Router_%s' % (self.name)
@@ -213,8 +215,8 @@ class Router:
         print('%s: routing table' % self)
         #TODO: print the routes as a two dimensional table for easy inspection
         # Currently the function just prints the route table as a dictionary
-        print(self.rt_tbl_D)
-        
+        #print(self.rt_tbl_D)
+        print(self.RoutingTable)
                 
     ## thread target for the host to keep forwarding data
     def run(self):
