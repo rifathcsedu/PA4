@@ -5,6 +5,7 @@ Created on Oct 12, 2016
 '''
 import queue
 import threading
+from ctypes.test.test_pickling import name
 
 
 ## wrapper class for a queue of packets
@@ -151,14 +152,50 @@ class Router:
         for i in range(num_intf):
             self.intf_L.append(Interface(max_queue_size))
         #set up the routing table for connected hosts
-        self.rt_tbl_D = rt_tbl_D 
-
+        self.rt_tbl_D = rt_tbl_D
+        self.routerNum=2
+        self.hostNum=2
+        self.RoutingTable = self.setInitialData(self.rt_tbl_D,self.routerNum,self.hostNum,name) 
+        #print(self.RoutingTable)
+        
+        
     ## called when printing the object
     def __str__(self):
         return 'Router_%s' % (self.name)
-
+    def setInitialData(self,table1,routerNum,hostNum,name):
+        
+        #print(table1)
+        table = [[-1 for x in range(routerNum)] for y in range(hostNum)] 
+        myIndex=self.checkIndex(name)
+        i=1
+        while i<=hostNum:
+            #print(table1.get(i,"none"))
+            if(table1.get(i,"none")!="none"):
+                #print(table1[i])
+                j=0
+                while j<2:
+                    if(table1[i].get(j,"none")!="none"):
+                        table[myIndex][i-1]=table1[i].get(j,"none")
+                    j+=1
+            i+=1
+        #print(table)
+        return table
+        
+        #print(myIndex)
     ## look through the content of incoming interfaces and 
     # process data and control packets
+    def checkIndex(self,c):
+        if c=="A":
+            return 0
+        elif c=="B":
+            return 1
+        elif c=="C":
+            return 2
+        elif c=="D":
+            return 3
+        elif c=="E":
+            return 4
+        
     def process_queues(self):
         for i in range(len(self.intf_L)):
             pkt_S = None
@@ -210,10 +247,26 @@ class Router:
         
     ## Print routing table
     def print_routes(self):
-        print('%s: routing table' % self)
+        print('\n%s: routing table' % self)
+        i=0
+        print("   ",end="")
+        while i<self.hostNum:
+            print("%d " % (i+1),end="")
+            i+=1
+        print("")
+        i=0
+        while i<self.routerNum:
+            j=0
+            print("%s "%chr(i+65),end="")
+            while j<self.hostNum:
+                print("%d "%self.RoutingTable[i][j],end="")
+                j+=1
+            print("")
+            i+=1
+        print("\n")
         #TODO: print the routes as a two dimensional table for easy inspection
         # Currently the function just prints the route table as a dictionary
-        print(self.rt_tbl_D)
+        #print(self.rt_tbl_D)
         
                 
     ## thread target for the host to keep forwarding data
