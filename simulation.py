@@ -11,7 +11,7 @@ import sys
 
 ##configuration parameters
 router_queue_size = 0 #0 means unlimited
-simulation_time = 1 #give the network sufficient time to transfer all packets before quitting
+simulation_time = 2 #give the network sufficient time to transfer all packets before quitting
 
 if __name__ == '__main__':
     object_L = [] #keeps track of objects, so we can kill their threads
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     
     #send out routing information from router A to router B interface 0
     router_a.send_routes(1)
-    
+    sleep(1.5)
     #create some send events    
     for i in range(1):
         client.udt_send(2, 'Sample client data %d' % i)

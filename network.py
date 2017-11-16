@@ -6,6 +6,7 @@ Created on Oct 12, 2016
 import queue
 import threading
 from ctypes.test.test_pickling import name
+from email.message import Message
 
 
 ## wrapper class for a queue of packets
@@ -232,11 +233,74 @@ class Router:
         # possibly send out routing updates
         print('%s: Received routing update %s from interface %d' % (self, p, i))
         
+        info=str(p).split("#")
+        #print(info)
+        #table=info[3].split('[',',',']')
+        table=info[2].replace("[","")
+        table=table.replace("]","")
+        #print(table)
+        table1=table.split(",")
+        table2 = [[-1 for x in range(self.routerNum)] for y in range(self.hostNum)]
+        i=0
+        j=0
+        k=0
+        while i< len(table1):
+            if(i==2):
+                j+=1
+                k=0
+            table2[j][k]=int(table1[i])
+            i+=1
+            k+=1
+        #print("HI")
+        #print(table2)
+        i=0
+        while i<self.routerNum:
+            j=0
+            while j<self.hostNum:
+                if(self.RoutingTable[i][j]==-1):
+                    self.RoutingTable[i][j]=10000
+                if(table2[i][j]==-1):
+                    table2[i][j]=10000
+                j+=1
+            i+=1
+        i=0
+        flag=0
+        while i<self.routerNum:
+            j=0
+            while j<self.hostNum:
+                if(self.RoutingTable[i][j]>table2[i][j]):
+                    self.RoutingTable[i][j]=table2[i][j]
+                    flag=1
+                j+=1
+            i+=1
+        i=0
+        while i<self.routerNum:
+            j=0
+            while j<self.hostNum:
+                if(self.RoutingTable[i][j]==10000):
+                    self.RoutingTable[i][j]=-1
+                j+=1
+            i+=1
+        print("New Updated ", end="")
+        self.print_routes()
+        '''
+        if(flag==1):
+            i=0
+            while i<2:
+                self.send_routes(i)
+            i+=1
+        '''
+        if(flag==1):
+            if(self.name=='A'):
+                self.send_routes(1)
+            elif(self.name=='B'):
+                self.send_routes(0)
     ## send out route update
     # @param i Interface number on which to send out a routing update
     def send_routes(self, i):
         # a sample route update packet
-        p = NetworkPacket(0, 'control', 'Sample routing table packet')
+        str1="#"+self.name+"#"+str(self.RoutingTable)
+        p = NetworkPacket(0, 'control', str1)
         try:
             #TODO: add logic to send out a route update
             print('%s: sending routing update "%s" from interface %d' % (self, p, i))
@@ -247,7 +311,7 @@ class Router:
         
     ## Print routing table
     def print_routes(self):
-        print('\n%s: routing table' % self)
+        print('%s: routing table' % self)
         i=0
         print("   ",end="")
         while i<self.hostNum:
@@ -264,11 +328,11 @@ class Router:
             print("")
             i+=1
         print("\n")
+        #print("String: ")
+        #print(str(self.RoutingTable))
         #TODO: print the routes as a two dimensional table for easy inspection
         # Currently the function just prints the route table as a dictionary
         #print(self.rt_tbl_D)
-        
-                
     ## thread target for the host to keep forwarding data
     def run(self):
         print (threading.currentThread().getName() + ': Starting')
