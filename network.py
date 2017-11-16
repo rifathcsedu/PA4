@@ -5,8 +5,8 @@ Created on Oct 12, 2016
 '''
 import queue
 import threading
-from ctypes.test.test_pickling import name
 from email.message import Message
+from pyxb.bundles.wssplat.raw.soapenc import byte_
 
 
 ## wrapper class for a queue of packets
@@ -53,7 +53,7 @@ class Interface:
 # the fields necessary for the completion of this assignment.
 class NetworkPacket:
     ## packet encoding lengths 
-    dst_addr_S_length = 5
+    dst_addr_S_length = 2
     prot_S_length = 1
     
     ##@param dst_addr: address of the destination host
@@ -77,9 +77,9 @@ class NetworkPacket:
             byte_S += '2'
         else:
             raise('%s: unknown prot_S option: %s' %(self, self.prot_S))
+        #byte_S+='#'
         byte_S += self.data_S
         return byte_S
-    
     ## extract a packet object from a byte string
     # @param byte_S: byte string representation of the packet
     @classmethod
@@ -220,7 +220,30 @@ class Router:
             # TODO: Here you will need to implement a lookup into the 
             # forwarding table to find the appropriate outgoing interface
             # for now we assume the outgoing interface is (i+1)%2
-            self.intf_L[(i+1)%2].put(p.to_byte_S(), 'out', True)
+            #self.intf_L[(i+1)%2].put(p.to_byte_S(), 'out', True)
+            dst = p.dst_addr
+            i=1
+            minInt=-1;
+            minCost=10000
+            while i<=self.hostNum:
+                if(self.rt_tbl_D.get(i,"none")!="none" and i==dst):
+                    j=0
+                    while j<2:
+                        if(self.rt_tbl_D[i].get(j,"none")!="none"):
+                            x=self.rt_tbl_D[i].get(j,"none")
+                            if(x<minCost):
+                                minCost=x
+                                minInt=j
+                        j+=1
+                i+=1
+            print(minCost)
+            print(minInt)
+            self.intf_L[minInt].put(p.to_byte_S(), 'out', True)            
+                    
+            #print(info)
+            #table=info[3].split('[',',',']')
+            #table=info[2].replace("[","")
+            #table=table.replace("]","")
             print('%s: forwarding packet "%s" from interface %d to %d' % (self, p, i, (i+1)%2))
         except queue.Full:
             print('%s: packet "%s" lost on interface %d' % (self, p, i))
@@ -283,13 +306,6 @@ class Router:
             i+=1
         print("New Updated ", end="")
         self.print_routes()
-        '''
-        if(flag==1):
-            i=0
-            while i<2:
-                self.send_routes(i)
-            i+=1
-        '''
         if(flag==1):
             if(self.name=='A'):
                 self.send_routes(1)
