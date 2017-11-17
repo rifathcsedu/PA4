@@ -11,7 +11,7 @@ import sys
 
 ##configuration parameters
 router_queue_size = 0 #0 means unlimited
-simulation_time = 7 #give the network sufficient time to transfer all packets before quitting
+simulation_time = 9 #give the network sufficient time to transfer all packets before quitting
 
 if __name__ == '__main__':
     object_L = [] #keeps track of objects, so we can kill their threads
@@ -25,13 +25,13 @@ if __name__ == '__main__':
     object_L.append(server)
     #print("HI")
     #create routers and routing tables for connected clients (subnets)
-    router_a_rt_tbl_D = {3: {1: 11},3:{1:12},1:{0:7},2:{0:6}} # packet to host 1 through interface 1 for cost 1
+    router_a_rt_tbl_D = {3: {1: 31},3:{1:12},1:{0:7},2:{0:6}} # packet to host 1 through interface 1 for cost 1
     router_a = network.Router(name="A", 
                               num_intf = 2,
                               rt_tbl_D = router_a_rt_tbl_D, 
                               max_queue_size=router_queue_size)
     object_L.append(router_a)
-    router_b_rt_tbl_D = {3: {1: 33},1:{0:50},2:{0:50}} # packet to host 2 through interface 1 for cost 3
+    router_b_rt_tbl_D = {3: {1: 33},1:{0:60},2:{0:60}} # packet to host 2 through interface 1 for cost 3
     router_b = network.Router(name="B", 
                               num_intf = 2, 
                               rt_tbl_D = router_b_rt_tbl_D, 
@@ -43,7 +43,7 @@ if __name__ == '__main__':
                               rt_tbl_D = router_c_rt_tbl_D, 
                               max_queue_size=router_queue_size)
     object_L.append(router_c)
-    router_d_rt_tbl_D = {3: {1: 3},1:{0:31},1:{0:22},2:{0:31},2:{0:22}} # packet to host 1 through interface 1 for cost 1
+    router_d_rt_tbl_D = {3: {1: 3},1:{0:21},1:{0:52},2:{0:31},2:{0:22}} # packet to host 1 through interface 1 for cost 1
     router_d = network.Router(name="D", 
                               num_intf = 2,
                               rt_tbl_D = router_d_rt_tbl_D, 
@@ -87,7 +87,7 @@ if __name__ == '__main__':
                 obj.send_routes(0)
     
     
-    sleep(3)
+    sleep(4)
     #create some send events    
     for i in range(1):
         client1.udt_send(3, 'Sample client data %d' % i)

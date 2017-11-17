@@ -115,6 +115,7 @@ class Host:
     # @param dst_addr: destination address for the packet
     # @param data_S: data being transmitted to the network layer
     def udt_send(self, dst_addr, data_S):
+        data_S+=str(self.addr)
         p = NetworkPacket(dst_addr, 'data', data_S)
         print('%s: sending packet "%s"' % (self, p))
         self.intf_L[0].put(p.to_byte_S(), 'out') #send packets always enqueued successfully
@@ -123,7 +124,18 @@ class Host:
     def udt_receive(self):
         pkt_S = self.intf_L[0].get('in')
         if pkt_S is not None:
-            print('%s: received packet "%s"' % (self, pkt_S))
+            p=str(pkt_S)
+            dest=int(p[len(p)-1])
+            #print("Dest= %d"%dest)
+            p=p[0:len(p)-1]
+            print('%s: received packet "%s"' % (self, p))
+            x=p.find("ACK")
+            #print(x)
+            if(x<0):
+                print("\n\n\nI am %s, sending ACK to Host_%d"%(self,dest))
+                self.udt_send(dest, "ACK")
+            else:
+                print("\n\n\n--------------Message sending Done--------------\n\n\n")
        
     ## thread target for the host to keep receiving data
     def run(self):
@@ -257,8 +269,8 @@ class Router:
                                 minInt=j
                         j+=1
                 i+=1
-            #print(minCost)
-            #print(minInt)
+            print(minCost)
+            print(minInt)
             self.intf_L[minInt].put(p.to_byte_S(), 'out', True)            
                     
             #print(info)
