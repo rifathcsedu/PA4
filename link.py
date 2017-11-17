@@ -6,7 +6,6 @@ Created on Oct 12, 2016
 
 import queue
 import threading
-
 ## An abstraction of a link between router interfaces
 class Link:
     
@@ -37,9 +36,20 @@ class Link:
                 continue #continue if no packet to transfer
             #otherwise transmit the packet
             try:
-                #print(node_b)
+                
                 #print(pkt_S)
-                intf_b.put(pkt_S, 'in')
+                
+                dst_addr = int(pkt_S[0 : 2])
+                #print("hi")
+                #print(dst_addr)
+                #print(node_a)
+                #print(node_b)
+                x=("Host_"+str(dst_addr))
+                if(str(node_b)!=x and str(node_b).find("Host")>=0):
+                    print("heee")
+                    node_a.intf_L[0].put(pkt_S, 'out', True)
+                    continue
+                intf_b.put(pkt_S, 'in')    
                 print('%s: transmitting packet "%s" on %s %s -> %s, %s' % (self, pkt_S, node_a, node_a_intf, node_b, node_b_intf))
             except queue.Full:
                 print('%s: packet lost' % (self))

@@ -186,7 +186,7 @@ class Router:
                             table[myIndex][i-1]=int(table[myIndex][i-1]/10)
                     j+=1
             i+=1
-        print(table)
+        #print(table)
         return table
         
         #print(myIndex)
@@ -239,6 +239,7 @@ class Router:
             # for now we assume the outgoing interface is (i+1)%2
             #self.intf_L[(i+1)%2].put(p.to_byte_S(), 'out', True)
             dst = p.dst_addr
+            y=i
             i=1
             minInt=-1;
             minCost=10000
@@ -256,15 +257,15 @@ class Router:
                                 minInt=j
                         j+=1
                 i+=1
-            print(minCost)
-            print(minInt)
+            #print(minCost)
+            #print(minInt)
             self.intf_L[minInt].put(p.to_byte_S(), 'out', True)            
                     
             #print(info)
             #table=info[3].split('[',',',']')
             #table=info[2].replace("[","")
             #table=table.replace("]","")
-            print('%s: forwarding packet "%s" from interface %d to %d' % (self, p, i, (i+1)%2))
+            print('%s: forwarding packet "%s" from interface %d to %d' % (self, p, y, minInt))
         except queue.Full:
             print('%s: packet "%s" lost on interface %d' % (self, p, i))
             pass
