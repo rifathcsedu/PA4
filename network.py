@@ -154,8 +154,10 @@ class Router:
             self.intf_L.append(Interface(max_queue_size))
         #set up the routing table for connected hosts
         self.rt_tbl_D = rt_tbl_D
-        self.routerNum=2
-        self.hostNum=2
+        print(self.name)
+        #print(self.rt_tbl_D)
+        self.routerNum=4
+        self.hostNum=3
         self.RoutingTable = self.setInitialData(self.rt_tbl_D,self.routerNum,self.hostNum,name) 
         #print(self.RoutingTable)
         
@@ -166,20 +168,25 @@ class Router:
     def setInitialData(self,table1,routerNum,hostNum,name):
         
         #print(table1)
-        table = [[-1 for x in range(routerNum)] for y in range(hostNum)] 
+        table = [[-1 for x in range(hostNum)] for y in range(routerNum)] 
+        #print(table)
         myIndex=self.checkIndex(name)
         i=1
         while i<=hostNum:
             #print(table1.get(i,"none"))
+            #print(i)
             if(table1.get(i,"none")!="none"):
                 #print(table1[i])
                 j=0
                 while j<2:
+                    #print(table1[i].get(j,"none"))
                     if(table1[i].get(j,"none")!="none"):
                         table[myIndex][i-1]=table1[i].get(j,"none")
+                        if(table[myIndex][i-1]>9):
+                            table[myIndex][i-1]=int(table[myIndex][i-1]/10)
                     j+=1
             i+=1
-        #print(table)
+        print(table)
         return table
         
         #print(myIndex)
@@ -196,7 +203,17 @@ class Router:
             return 3
         elif c=="E":
             return 4
-        
+    def checkName(self,c):
+        if c=="A":
+            return 0
+        elif c=="B":
+            return 1
+        elif c=="C":
+            return 2
+        elif c=="D":
+            return 3
+        elif c=="E":
+            return 4    
     def process_queues(self):
         for i in range(len(self.intf_L)):
             pkt_S = None
@@ -231,6 +248,9 @@ class Router:
                     while j<2:
                         if(self.rt_tbl_D[i].get(j,"none")!="none"):
                             x=self.rt_tbl_D[i].get(j,"none")
+                            if(x>9):
+                                temp=x%10
+                                x=int(x/10)
                             if(x<minCost):
                                 minCost=x
                                 minInt=j
@@ -263,14 +283,19 @@ class Router:
         table=table.replace("]","")
         #print(table)
         table1=table.split(",")
-        table2 = [[-1 for x in range(self.routerNum)] for y in range(self.hostNum)]
+        table2 = [[-1 for x in range(self.hostNum)] for y in range(self.routerNum)]
         i=0
         j=0
         k=0
+        #print(table1)
+        #print(len(table1))
         while i< len(table1):
-            if(i==2):
+            if(k==self.hostNum):
+                #print(table2[j])
                 j+=1
                 k=0
+            #print(i)
+            #print(k)
             table2[j][k]=int(table1[i])
             i+=1
             k+=1
@@ -309,7 +334,14 @@ class Router:
         if(flag==1):
             if(self.name=='A'):
                 self.send_routes(1)
+                #self.send_routes(1)
             elif(self.name=='B'):
+                self.send_routes(0)
+                self.send_routes(1)
+            elif(self.name=='C'):
+                self.send_routes(0)
+                self.send_routes(1)
+            elif(self.name=='D'):
                 self.send_routes(0)
     ## send out route update
     # @param i Interface number on which to send out a routing update
